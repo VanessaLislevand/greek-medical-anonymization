@@ -1,0 +1,50 @@
+.DS_Store
+
+# Python cache / build
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local config overrides / secrets
+.env
+.env.*
+*.local.json
+
+# Model artifacts
+models/
+checkpoints/
+*.bin
+*.safetensors
+*.onnx
+
+# Data, reports, outputs
+data/
+reports/
+outputs/
+anonymized/
+*.anon.txt
+*.anon.txt.json
+*.pkl
+*.npz
+
+# OS/editor
+.vscode/
+.idea/

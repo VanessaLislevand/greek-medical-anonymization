@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "greek-med-anonymizer"
+version = "0.1.0"
+description = "Configurable anonymization pipeline for Greek medical reports"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "Vanessa Lislevand" }
+]
+dependencies = []
+
+[project.optional-dependencies]
+ml = [
+  "transformers>=4.40.0",
+  "torch>=2.2.0",
+]
+
+[project.scripts]
+greek-med-anonymizer = "greek_med_anonymizer.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,33 @@
+{
+  "input_glob": "*.txt",
+  "output_suffix": ".anon.txt",
+  "mask_token": "[REDACTED]",
+  "processing_mode": "auto",
+  "rules": {
+    "phones": true,
+    "patient_ids": true
+  },
+  "template_sections": [
+    {
+      "name": "header",
+      "start_after": "ΣΤΟΙΧΕΙΑ ΑΣΘΕΝΟΥΣ",
+      "end_before": "ΚΛΙΝΙΚΗ ΕΙΚΟΝΑ",
+      "enabled_rules": [
+        "phones",
+        "patient_ids",
+        "names",
+        "hospitals"
+      ]
+    }
+  ],
+  "model": {
+    "enabled": false,
+    "model_dir": "/absolute/path/to/exported-model",
+    "labels_to_mask": [
+      "PHI",
+      "PERSON_NAME",
+      "HOSPITAL_NAME"
+    ],
+    "aggregation_strategy": "simple"
+  }
+}
