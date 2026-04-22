@@ -22,6 +22,7 @@ env/
 
 # Jupyter
 .ipynb_checkpoints/
+notebooks/
 
 # Local config overrides / secrets
 .env

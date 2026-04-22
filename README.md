@@ -51,10 +51,6 @@ greek-med-anonymizer anonymize \
 - ένα μεμονωμένο `.docx` ή `.txt` αρχείο
 - ένας φάκελος για batch anonymization
 
-## Notebook inference
-
-Υπάρχει notebook για single-file και batch prediction στο [Inference_Predict.ipynb](/Users/vanessalislevand/Documents/New%20project/notebooks/Inference_Predict.ipynb).
-
 ## Config example
 
 Υπάρχει παράδειγμα στο [examples/config.example.json](/Users/vanessalislevand/Documents/New%20project/examples/config.example.json).
