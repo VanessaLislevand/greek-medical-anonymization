@@ -29,9 +29,9 @@ xcode-select --install
 Μετά:
 
 ```bash
-python3 -m venv .venv
+python3.12 -m venv .venv
 source .venv/bin/activate
-pip install -e .[ml]
+pip install -e '.[ml]'
 ```
 
 ## 2. Model export
@@ -59,6 +59,8 @@ config.json
 Πάρε το example:
 
 - [config.local-example.json](/Users/vanessalislevand/Documents/New%20project/examples/config.local-example.json)
+- [config.mixed.example.json](/Users/vanessalislevand/Documents/New%20project/examples/config.mixed.example.json)
+- [config.free_text_only.example.json](/Users/vanessalislevand/Documents/New%20project/examples/config.free_text_only.example.json)
 
 και άλλαξε μόνο:
 

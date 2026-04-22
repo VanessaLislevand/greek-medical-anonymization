@@ -1,0 +1,18 @@
+{
+  "input_glob": "*.docx",
+  "output_suffix": ".anon.txt",
+  "mask_token": "[REDACTED]",
+  "processing_mode": "mixed",
+  "rules": {
+    "phones": true,
+    "patient_ids": true
+  },
+  "model": {
+    "enabled": true,
+    "model_dir": "/absolute/path/to/exported-model",
+    "labels_to_mask": [
+      "PHI"
+    ],
+    "aggregation_strategy": "simple"
+  }
+}
