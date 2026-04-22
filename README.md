@@ -1,6 +1,6 @@
 # Greek Medical Report Anonymizer
 
-Εργαλείο για ανωνυμοποίηση ελληνικών ιατρικών reports, βασισμένο σε hybrid pipeline:
+Tool for anonymizing Greek medical reports with a hybrid pipeline that combines:
 
 - template-aware rules για structured sections
 - regex rules για τηλέφωνα και patient ids
@@ -15,22 +15,6 @@
 - template-aware section handling
 - model adapter για token classification μοντέλο όπως XLM-R
 - υποστήριξη τόσο για binary `PHI` models όσο και για typed entity labels
-
-## Για την ομάδα
-
-Το repository προορίζεται να χρησιμοποιείται από πολλούς χρήστες με κοινό κώδικα αλλά χωρίς να μπαίνουν στο GitHub:
-
-- πραγματικά ιατρικά reports
-- local virtual environments
-- model weights
-- generated anonymized outputs
-
-Οι συνάδελφοι μπορούν να:
-
-1. κάνουν clone το repo
-2. στήσουν local environment
-3. βάλουν local path προς το exported model
-4. τρέξουν το CLI με το κατάλληλο config
 
 ## Ενδεικτική δομή
 
@@ -53,7 +37,7 @@ source .venv/bin/activate
 pip install -e '.[ml]'
 ```
 
-## Γρήγορη χρήση
+## Inference
 
 ```bash
 greek-med-anonymizer anonymize \
@@ -61,6 +45,15 @@ greek-med-anonymizer anonymize \
   --output /path/to/anonymized \
   --config /path/to/config.json
 ```
+
+Το `--input` μπορεί να είναι:
+
+- ένα μεμονωμένο `.docx` ή `.txt` αρχείο
+- ένας φάκελος για batch anonymization
+
+## Notebook inference
+
+Υπάρχει notebook για single-file και batch prediction στο [Inference_Predict.ipynb](/Users/vanessalislevand/Documents/New%20project/notebooks/Inference_Predict.ipynb).
 
 ## Config example
 
@@ -82,7 +75,7 @@ greek-med-anonymizer anonymize \
 
 Υπάρχει αναλυτικό setup και smoke-test guide στο [RUNBOOK.md](/Users/vanessalislevand/Documents/New%20project/RUNBOOK.md).
 
-## Συνήθη commands
+## Example commands
 
 ```bash
 greek-med-anonymizer anonymize \
@@ -100,13 +93,18 @@ greek-med-anonymizer anonymize \
   --emit-metadata
 ```
 
-## Git workflow για updates
-
 ```bash
-git add .
-git commit -m "describe changes"
-git push
+greek-med-anonymizer anonymize \
+  --input "/absolute/path/to/reports_directory" \
+  --output "/absolute/path/to/anonymized_directory" \
+  --config "/absolute/path/to/config.free_text_only.example.json" \
+  --emit-metadata
 ```
+
+## Notes
+
+- Actual medical reports, model weights, and generated outputs should remain outside the repository.
+- The exported model should be provided via local path in the selected config file.
 
 ## Επόμενα βήματα
 
