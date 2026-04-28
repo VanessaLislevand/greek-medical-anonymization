@@ -8,9 +8,6 @@ version = "0.1.0"
 description = "Configurable anonymization pipeline for Greek medical reports"
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [
-  { name = "Vanessa Lislevand" }
-]
 dependencies = []
 
 [project.optional-dependencies]

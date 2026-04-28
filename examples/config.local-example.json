@@ -9,9 +9,8 @@
   },
   "model": {
     "enabled": true,
-    "model_dir": "/Users/vanessalislevand/Documents/xlmr_phi_final_all_data",
+    "model_dir": "/absolute/path/to/exported-model",
     "labels_to_mask": ["PHI"],
     "aggregation_strategy": "simple"
   }
 }
-
