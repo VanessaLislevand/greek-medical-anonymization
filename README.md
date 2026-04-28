@@ -1,35 +1,34 @@
-# Greek Medical Report Anonymizer
+# Greek Medical Report Anonymization
 
-Tool for anonymizing Greek medical reports with a hybrid pipeline that combines:
+This repository contains a hybrid pipeline for anonymizing Greek medical reports. The approach combines rule-based processing for structured template fields with transformer-based PHI detection for free-text content.
 
-- template-aware rules για structured sections
-- regex rules για τηλέφωνα και patient ids
-- XLM-R token classification model για free-text PHI detection
+## Overview
 
-## Τι περιλαμβάνει
+The pipeline supports:
 
-- CLI για ανωνυμοποίηση ενός αρχείου ή ολόκληρου φακέλου
-- config-driven pipeline
-- υποστήριξη για `.txt` και `.docx`
-- rule-based anonymization για τηλέφωνα και patient ids
-- template-aware section handling
-- model adapter για token classification μοντέλο όπως XLM-R
-- υποστήριξη τόσο για binary `PHI` models όσο και για typed entity labels
+- document ingestion from `.docx` and `.txt`
+- template-aware anonymization for structured sections
+- regex-based detection of phone numbers and patient IDs
+- XLM-R-based detection of PHI spans in free text
+- configurable processing modes for mixed-format and free-text-only reports
 
-## Ενδεικτική δομή
+## Repository Structure
 
 ```text
 src/greek_med_anonymizer/
   cli.py
   pipeline.py
   rules.py
+  template_rules.py
+  free_text_rules.py
   templates.py
   xlm_inference.py
   config.py
   io_utils.py
+  docx_io.py
 ```
 
-## Setup
+## Installation
 
 ```bash
 python3.12 -m venv .venv
@@ -41,71 +40,40 @@ pip install -e '.[ml]'
 
 ```bash
 greek-med-anonymizer anonymize \
-  --input /path/to/reports-or-docx \
-  --output /path/to/anonymized \
+  --input /path/to/report_or_directory \
+  --output /path/to/output \
   --config /path/to/config.json
 ```
 
-Το `--input` μπορεί να είναι:
+The input may be either:
 
-- ένα μεμονωμένο `.docx` ή `.txt` αρχείο
-- ένας φάκελος για batch anonymization
+- a single report file
+- a directory of reports for batch processing
 
-## Config example
+## Configuration
 
-Υπάρχει παράδειγμα στο [examples/config.example.json](/Users/vanessalislevand/Documents/New%20project/examples/config.example.json).
+Example configuration files are provided in:
 
-Για local smoke test με πραγματικό model path υπάρχει και το [config.local-example.json](/Users/vanessalislevand/Documents/New%20project/examples/config.local-example.json).
+- `examples/config.example.json`
+- `examples/config.local-example.json`
+- `examples/config.mixed.example.json`
+- `examples/config.free_text_only.example.json`
 
-Για reports με γνωστή/μικτή δομή υπάρχει και το [config.mixed.example.json](/Users/vanessalislevand/Documents/New%20project/examples/config.mixed.example.json).
+Supported `processing_mode` values:
 
-Για reports που είναι εξ ολοκλήρου free text υπάρχει και το [config.free_text_only.example.json](/Users/vanessalislevand/Documents/New%20project/examples/config.free_text_only.example.json).
-
-Μπορείς επίσης να ορίσεις `processing_mode`:
 - `auto`
 - `mixed`
 - `free_text_only`
 - `template_only`
 
-## Runbook
+## Output
 
-Υπάρχει αναλυτικό setup και smoke-test guide στο [RUNBOOK.md](/Users/vanessalislevand/Documents/New%20project/RUNBOOK.md).
+The pipeline produces:
 
-## Example commands
-
-```bash
-greek-med-anonymizer anonymize \
-  --input "/absolute/path/to/report.docx" \
-  --output "/absolute/path/to/report.anon.txt" \
-  --config "/absolute/path/to/config.free_text_only.example.json" \
-  --emit-metadata
-```
-
-```bash
-greek-med-anonymizer anonymize \
-  --input "/absolute/path/to/report.docx" \
-  --output "/absolute/path/to/report.anon.txt" \
-  --config "/absolute/path/to/config.mixed.example.json" \
-  --emit-metadata
-```
-
-```bash
-greek-med-anonymizer anonymize \
-  --input "/absolute/path/to/reports_directory" \
-  --output "/absolute/path/to/anonymized_directory" \
-  --config "/absolute/path/to/config.free_text_only.example.json" \
-  --emit-metadata
-```
+- an anonymized text file
+- optional span-level metadata in JSON format
 
 ## Notes
 
-- Actual medical reports, model weights, and generated outputs should remain outside the repository.
-- The exported model should be provided via local path in the selected config file.
-
-## Επόμενα βήματα
-
-1. Μεταφορά των regex/template rules στα `rules.py` και `templates.py`
-2. Export ή αποθήκευση του trained model σε local directory
-3. Σύνδεση label mapping στο `xlm_inference.py`
-4. Μεταφορά preprocessing σε καθαρές functions
-5. Προσθήκη tests με πραγματικά redacted examples
+- Medical reports, model weights, and generated outputs are intended to remain outside the repository.
+- The exported model is provided through a local path specified in the selected configuration file.
