@@ -6,21 +6,28 @@ import string
 from greek_med_anonymizer.models import Entity
 
 
+PATIENT_ID_LABEL = r"Αρ\.\s*Μητρ\.\s*Ασθ(?:\.|(?:ενούς))?"
+POSTAL_CITY_LABEL = r"(?:Τ\.\s*Κ\.?\s*[–—-]?\s*Πόλη|Τ\.\s*Κ\.?|Πόλη)"
+
+
 FIELD_SAME_LINE = [
-    ("patient_id", re.compile(r"(Αρ\.\s*Μητρ\.\s*Ασθ(?:ενούς)?\s*:\s*)([^\n]+)", re.IGNORECASE)),
+    ("patient_id", re.compile(rf"({PATIENT_ID_LABEL}\s*:\s*)([^\n\r]+)", re.IGNORECASE)),
+    ("staff_name", re.compile(r"(Διευθυντής\s*:\s*)([^\n\r]+)", re.IGNORECASE)),
     ("first_name", re.compile(r"(Όνομα\s*:\s*)([^\n]+)", re.IGNORECASE)),
     ("last_name", re.compile(r"(Επώνυμο\s*:\s*)([^\n]+)", re.IGNORECASE)),
     ("address", re.compile(r"(Διεύθυνση\s*:\s*)([^\n]+)", re.IGNORECASE)),
-    ("postal_city", re.compile(r"((?:Τ\.Κ\.?|Πόλη)\s*:\s*)([^\n]+)", re.IGNORECASE)),
+    ("postal_city", re.compile(rf"({POSTAL_CITY_LABEL}\s*:\s*)([^\n\r]+)", re.IGNORECASE)),
     ("phone", re.compile(r"(Τηλέφωνο\s*:\s*)([^\n]+)", re.IGNORECASE)),
 ]
 
 FIELD_NEXT_LINE = [
-    ("patient_id", re.compile(r"(Αρ\.\s*Μητρ\.\s*Ασθ(?:ενούς)?\s*:\s*\n)([^\n]+)", re.IGNORECASE)),
+    ("patient_id", re.compile(rf"({PATIENT_ID_LABEL}\s*:\s*\n)([^\n\r]+)", re.IGNORECASE)),
+    ("staff_name", re.compile(r"(Διευθυντής\s*:\s*\n)([^\n\r]+)", re.IGNORECASE)),
     ("first_name", re.compile(r"(Όνομα\s*:\s*\n)([^\n]+)", re.IGNORECASE)),
     ("last_name", re.compile(r"(Επώνυμο\s*:\s*\n)([^\n]+)", re.IGNORECASE)),
     ("address", re.compile(r"(Διεύθυνση\s*:\s*\n)([^\n]+)", re.IGNORECASE)),
-    ("postal_city", re.compile(r"((?:Τ\.Κ\.?|Πόλη)\s*:\s*\n)([^\n]+)", re.IGNORECASE)),
+    ("postal_city", re.compile(rf"({POSTAL_CITY_LABEL}\s*:\s*\n)([^\n\r]+)", re.IGNORECASE)),
+    ("phone", re.compile(r"(Τηλέφωνο\s*:\s*\n)([^\n\r]+)", re.IGNORECASE)),
 ]
 
 SIGNATURE_TITLE_LINE = re.compile(
