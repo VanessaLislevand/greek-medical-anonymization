@@ -71,6 +71,12 @@ LABEL_HINTS = [
     "ΠΡΟΣΟΧΗ",
 ]
 
+TITLE_VALUE_PATTERNS = [
+    re.compile(r"^(?:Καθηγητής|Καθηγήτρια)\s*:\s*\S", re.IGNORECASE),
+    re.compile(r"^(?:Ιατρός|Η\s+Ιατρός|Ο\s+Ιατρός)\s*:\s*\S", re.IGNORECASE),
+    re.compile(r"^(?:Επιμελητής|Επιμελήτρια)\s*:\s*\S", re.IGNORECASE),
+]
+
 _ONLY_PUNCT = set(string.punctuation) | {"·", "…", "«", "»", "–", "—", "―", "’", "“", "”", "„", "•", "▪", "►", "‐"}
 PHONE_PAT = re.compile(r"(?:\+30\s*)?(?:69\d|2\d{2})[\s\-]?\d{3}[\s\-]?\d{4}")
 PHONE_LINE_PAT = re.compile(r"^\s*(?:@?\+30\s*)?(?:69\d|2\d{2})[\d\s\-\(\)]{7,}\s*$")
@@ -80,6 +86,11 @@ def looks_like_label(value: str) -> bool:
     value = (value or "").strip()
     if not value:
         return True
+
+    for pattern in TITLE_VALUE_PATTERNS:
+        if pattern.match(value):
+            return False
+
     if value.endswith(":"):
         return True
     lower_value = value.lower()
