@@ -114,6 +114,10 @@ def render_app() -> None:
     st.title("Greek Medical Report Anonymizer")
     st.caption("Local web interface for anonymizing Greek medical reports.")
 
+    model_dir = DEFAULT_MODEL_DIR
+    emit_metadata = True
+    use_model = True
+
     with st.sidebar:
         st.header("Main settings")
         processing_mode_label = st.selectbox(
@@ -121,44 +125,24 @@ def render_app() -> None:
             list(PROCESSING_MODE_OPTIONS.keys()),
             index=0,
         )
-        use_model = st.checkbox("Use XLM-R model for free-text PHI detection", value=True)
-        model_dir = st.text_input(
-            "Model directory",
-            value=DEFAULT_MODEL_DIR,
-            help="Local path to the exported model folder.",
-        )
         resolved_model_dir = resolve_model_dir(model_dir.strip()) if model_dir.strip() else None
-        emit_metadata = st.checkbox("Export metadata JSON", value=True)
 
         with st.expander("Advanced options"):
             mask_token = st.text_input("Mask token", value="[REDACTED]")
-            detect_phones = st.checkbox("Detect phone numbers", value=True)
-            detect_patient_ids = st.checkbox("Detect patient IDs", value=True)
-            labels_to_mask = st.text_input(
-                "Labels to mask",
-                value="PHI",
-                help="Comma-separated labels used by the model.",
-            )
-            aggregation_strategy = st.selectbox(
-                "Aggregation strategy",
-                ["simple", "first", "average", "max"],
-                index=0,
-            )
 
     st.markdown(
         """
         **How to use**
 
         1. Select the report type.
-        2. If you want model-based free-text detection, use the default local model folder or provide another one.
-        3. Upload one or more `.docx` or `.txt` files.
-        4. Click **Run anonymization**.
-        5. Download the generated `.zip` archive.
+        2. Upload one or more `.docx` or `.txt` files.
+        3. Click **Run anonymization**.
+        4. Download the generated `.zip` archive.
         """
     )
 
-    if use_model and resolved_model_dir:
-        st.caption(f"Resolved model path: `{resolved_model_dir}`")
+    if resolved_model_dir:
+        st.caption(f"Using local model from: `{resolved_model_dir}`")
 
     uploaded_files = st.file_uploader(
         "Upload report(s)",
@@ -173,11 +157,11 @@ def render_app() -> None:
         config = _build_config(
             processing_mode=PROCESSING_MODE_OPTIONS[processing_mode_label],
             mask_token=mask_token,
-            detect_phones=detect_phones,
-            detect_patient_ids=detect_patient_ids,
+            detect_phones=True,
+            detect_patient_ids=True,
             model_dir=model_dir if use_model else "",
-            labels_to_mask=labels_to_mask,
-            aggregation_strategy=aggregation_strategy,
+            labels_to_mask="PHI",
+            aggregation_strategy="simple",
         )
 
         try:
