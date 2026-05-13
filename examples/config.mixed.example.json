@@ -9,7 +9,7 @@
   },
   "model": {
     "enabled": true,
-    "model_dir": "/absolute/path/to/exported-model",
+    "model_dir": "models/xlmr_phi_final",
     "labels_to_mask": [
       "PHI"
     ],

@@ -35,6 +35,15 @@ checkpoints/
 *.bin
 *.safetensors
 *.onnx
+!models/
+!models/README.md
+!models/xlmr_phi_final/
+!models/xlmr_phi_final/.gitkeep
+!models/xlmr_phi_final/*.bin
+!models/xlmr_phi_final/*.safetensors
+!models/xlmr_phi_final/*.onnx
+!models/xlmr_phi_final/*.json
+!models/xlmr_phi_final/*.txt
 
 # Data, reports, outputs
 data/

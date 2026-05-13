@@ -33,7 +33,7 @@ src/greek_med_anonymizer/
 ```bash
 python3.12 -m venv .venv
 source .venv/bin/activate
-pip install -e '.[ml]'
+pip install -e '.[ml,ui]'
 ```
 
 ## Inference
@@ -49,6 +49,48 @@ The input may be either:
 
 - a single report file
 - a directory of reports for batch processing
+
+## Local Web App
+
+A local web interface is available for non-technical users.
+
+Launch it with:
+
+```bash
+greek-med-anonymizer-ui
+```
+
+The web app supports:
+
+- upload of one or more `.docx` / `.txt` files
+- processing-mode selection
+- local model-path entry
+- optional JSON metadata export
+- download of anonymized outputs as a `.zip` archive
+
+By default, the interface expects the exported model under:
+
+```text
+models/xlmr_phi_final
+```
+
+## Quick End-to-End Test
+
+After installing the package and exporting the model, a simple end-to-end test can be performed as follows:
+
+1. Launch the local web app:
+
+```bash
+greek-med-anonymizer-ui
+```
+
+2. In the web interface:
+
+- choose the report type
+- provide the local model directory
+- upload one or more `.docx` / `.txt` reports
+- run anonymization
+- download the resulting `.zip` archive
 
 ## Configuration
 
@@ -76,4 +118,4 @@ The pipeline produces:
 ## Notes
 
 - Medical reports, model weights, and generated outputs are intended to remain outside the repository.
-- The exported model is provided through a local path specified in the selected configuration file.
+- The default repository location for the exported model is `models/xlmr_phi_final`.

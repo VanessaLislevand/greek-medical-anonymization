@@ -1,0 +1,201 @@
+from __future__ import annotations
+
+from io import BytesIO
+import json
+from pathlib import Path
+import tempfile
+import zipfile
+
+from greek_med_anonymizer.config import AppConfig, ModelConfig, RuleConfig
+from greek_med_anonymizer.io_utils import read_input_text
+from greek_med_anonymizer.pipeline import AnonymizationPipeline
+
+try:
+    import streamlit as st
+except ImportError as exc:  # pragma: no cover
+    raise RuntimeError(
+        "Streamlit is not installed. Install the UI dependencies with: pip install -e '.[ui,ml]'"
+    ) from exc
+
+
+PROCESSING_MODE_OPTIONS = {
+    "Report with template and free text": "auto",
+    "Free-text-only report": "free_text_only",
+    "Template-only report": "template_only",
+}
+DEFAULT_MODEL_DIR = "models/xlmr_phi_final"
+
+
+def _build_config(
+    processing_mode: str,
+    mask_token: str,
+    detect_phones: bool,
+    detect_patient_ids: bool,
+    model_dir: str,
+    labels_to_mask: str,
+    aggregation_strategy: str,
+) -> AppConfig:
+    cleaned_model_dir = model_dir.strip()
+    cleaned_labels = [label.strip() for label in labels_to_mask.split(",") if label.strip()]
+    return AppConfig(
+        input_glob="*.docx",
+        output_suffix=".anon.txt",
+        mask_token=mask_token,
+        processing_mode=processing_mode,
+        rules=RuleConfig(
+            phones=detect_phones,
+            patient_ids=detect_patient_ids,
+        ),
+        model=ModelConfig(
+            enabled=bool(cleaned_model_dir),
+            model_dir=cleaned_model_dir or None,
+            labels_to_mask=cleaned_labels or ["PHI"],
+            aggregation_strategy=aggregation_strategy,
+        ),
+    )
+
+
+def _entity_payload(entities: list) -> list[dict]:
+    return [
+        {
+            "start": entity.start,
+            "end": entity.end,
+            "label": entity.label,
+            "text": entity.text,
+            "source": entity.source,
+        }
+        for entity in entities
+    ]
+
+
+def _process_uploaded_files(uploaded_files, pipeline: AnonymizationPipeline, emit_metadata: bool) -> tuple[bytes, list[dict]]:
+    zip_buffer = BytesIO()
+    summaries: list[dict] = []
+
+    with zipfile.ZipFile(zip_buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for uploaded_file in uploaded_files:
+            suffix = Path(uploaded_file.name).suffix or ".txt"
+            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
+                temp_file.write(uploaded_file.getbuffer())
+                temp_path = Path(temp_file.name)
+
+            try:
+                text = read_input_text(temp_path)
+                result = pipeline.anonymize_text(text)
+            finally:
+                temp_path.unlink(missing_ok=True)
+
+            output_name = Path(uploaded_file.name).stem + ".anon.txt"
+            archive.writestr(output_name, result.anonymized_text)
+
+            metadata = _entity_payload(result.entities)
+            if emit_metadata:
+                archive.writestr(
+                    output_name + ".json",
+                    json.dumps(metadata, ensure_ascii=False, indent=2),
+                )
+
+            summaries.append(
+                {
+                    "filename": uploaded_file.name,
+                    "output_name": output_name,
+                    "entity_count": len(metadata),
+                    "preview": result.anonymized_text[:2000],
+                    "entities": metadata[:30],
+                }
+            )
+
+    zip_buffer.seek(0)
+    return zip_buffer.getvalue(), summaries
+
+
+def render_app() -> None:
+    st.set_page_config(page_title="Greek Medical Report Anonymizer", layout="wide")
+    st.title("Greek Medical Report Anonymizer")
+    st.caption("Local web interface for anonymizing Greek medical reports.")
+
+    with st.sidebar:
+        st.header("Main settings")
+        processing_mode_label = st.selectbox(
+            "Report type",
+            list(PROCESSING_MODE_OPTIONS.keys()),
+            index=0,
+        )
+        use_model = st.checkbox("Use XLM-R model for free-text PHI detection", value=True)
+        model_dir = st.text_input(
+            "Model directory",
+            value=DEFAULT_MODEL_DIR,
+            help="Local path to the exported model folder.",
+        )
+        emit_metadata = st.checkbox("Export metadata JSON", value=True)
+
+        with st.expander("Advanced options"):
+            mask_token = st.text_input("Mask token", value="[REDACTED]")
+            detect_phones = st.checkbox("Detect phone numbers", value=True)
+            detect_patient_ids = st.checkbox("Detect patient IDs", value=True)
+            labels_to_mask = st.text_input(
+                "Labels to mask",
+                value="PHI",
+                help="Comma-separated labels used by the model.",
+            )
+            aggregation_strategy = st.selectbox(
+                "Aggregation strategy",
+                ["simple", "first", "average", "max"],
+                index=0,
+            )
+
+    st.markdown(
+        """
+        **How to use**
+
+        1. Select the report type.
+        2. If you want model-based free-text detection, use the default local model folder or provide another one.
+        3. Upload one or more `.docx` or `.txt` files.
+        4. Click **Run anonymization**.
+        5. Download the generated `.zip` archive.
+        """
+    )
+
+    uploaded_files = st.file_uploader(
+        "Upload report(s)",
+        type=["docx", "txt"],
+        accept_multiple_files=True,
+    )
+
+    if use_model and not model_dir.strip():
+        st.info("If free-text model detection is needed, please provide the local model directory.")
+
+    if st.button("Run anonymization", type="primary", disabled=not uploaded_files):
+        config = _build_config(
+            processing_mode=PROCESSING_MODE_OPTIONS[processing_mode_label],
+            mask_token=mask_token,
+            detect_phones=detect_phones,
+            detect_patient_ids=detect_patient_ids,
+            model_dir=model_dir if use_model else "",
+            labels_to_mask=labels_to_mask,
+            aggregation_strategy=aggregation_strategy,
+        )
+
+        try:
+            with st.spinner("Running anonymization..."):
+                pipeline = AnonymizationPipeline(config)
+                archive_bytes, summaries = _process_uploaded_files(uploaded_files, pipeline, emit_metadata)
+        except Exception as exc:  # pragma: no cover
+            st.error(f"Anonymization failed: {exc}")
+        else:
+            st.success(f"Anonymization completed for {len(summaries)} file(s).")
+            st.download_button(
+                "Download anonymized outputs (.zip)",
+                data=archive_bytes,
+                file_name="anonymized_outputs.zip",
+                mime="application/zip",
+            )
+
+            for summary in summaries:
+                with st.expander(f"{summary['filename']}  |  detected entities: {summary['entity_count']}"):
+                    st.text_area("Preview", value=summary["preview"], height=240)
+                    if summary["entities"]:
+                        st.json(summary["entities"])
+
+
+render_app()
