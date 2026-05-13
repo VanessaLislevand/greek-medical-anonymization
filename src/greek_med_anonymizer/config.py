@@ -5,6 +5,9 @@ import json
 from pathlib import Path
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
 @dataclass(slots=True)
 class RuleConfig:
     phones: bool = True
@@ -36,6 +39,17 @@ class AppConfig:
     rules: RuleConfig = field(default_factory=RuleConfig)
     template_sections: list[TemplateSectionConfig] = field(default_factory=list)
     model: ModelConfig = field(default_factory=ModelConfig)
+
+
+def resolve_model_dir(model_dir: str | None) -> str | None:
+    if not model_dir:
+        return None
+
+    candidate = Path(model_dir).expanduser()
+    if candidate.is_absolute():
+        return str(candidate)
+
+    return str((PROJECT_ROOT / candidate).resolve())
 
 
 def load_config(path: str | Path) -> AppConfig:

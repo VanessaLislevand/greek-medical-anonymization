@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from greek_med_anonymizer.config import AppConfig
+from greek_med_anonymizer.config import AppConfig, resolve_model_dir
 from greek_med_anonymizer.free_text_rules import (
     detect_patient_id_entities as detect_free_text_patient_id_entities,
     detect_phone_entities as detect_free_text_phone_entities,
@@ -19,8 +19,9 @@ class AnonymizationPipeline:
         self.config = config
         self.model_detector = None
         if config.model.enabled and config.model.model_dir:
+            resolved_model_dir = resolve_model_dir(config.model.model_dir)
             self.model_detector = XLMRDetector(
-                model_dir=config.model.model_dir,
+                model_dir=resolved_model_dir,
                 labels_to_mask=config.model.labels_to_mask,
                 aggregation_strategy=config.model.aggregation_strategy,
             )

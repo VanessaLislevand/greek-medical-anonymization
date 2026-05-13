@@ -6,7 +6,7 @@ from pathlib import Path
 import tempfile
 import zipfile
 
-from greek_med_anonymizer.config import AppConfig, ModelConfig, RuleConfig
+from greek_med_anonymizer.config import AppConfig, ModelConfig, PROJECT_ROOT, RuleConfig, resolve_model_dir
 from greek_med_anonymizer.io_utils import read_input_text
 from greek_med_anonymizer.pipeline import AnonymizationPipeline
 
@@ -127,6 +127,7 @@ def render_app() -> None:
             value=DEFAULT_MODEL_DIR,
             help="Local path to the exported model folder.",
         )
+        resolved_model_dir = resolve_model_dir(model_dir.strip()) if model_dir.strip() else None
         emit_metadata = st.checkbox("Export metadata JSON", value=True)
 
         with st.expander("Advanced options"):
@@ -155,6 +156,9 @@ def render_app() -> None:
         5. Download the generated `.zip` archive.
         """
     )
+
+    if use_model and resolved_model_dir:
+        st.caption(f"Resolved model path: `{resolved_model_dir}`")
 
     uploaded_files = st.file_uploader(
         "Upload report(s)",
