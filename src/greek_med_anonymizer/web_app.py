@@ -68,42 +68,87 @@ def _entity_payload(entities: list) -> list[dict]:
     ]
 
 
+def _build_output_name(filename: str) -> str:
+    path = Path(filename)
+    stem = path.stem
+    if path.parent != Path("."):
+        safe_parent = "__".join(path.parent.parts)
+        return f"{safe_parent}__{stem}.anon.txt"
+    return f"{stem}.anon.txt"
+
+
+def _anonymize_uploaded_content(filename: str, payload: bytes, pipeline: AnonymizationPipeline) -> dict:
+    suffix = Path(filename).suffix or ".txt"
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
+        temp_file.write(payload)
+        temp_path = Path(temp_file.name)
+
+    try:
+        text = read_input_text(temp_path)
+        result = pipeline.anonymize_text(text)
+    finally:
+        temp_path.unlink(missing_ok=True)
+
+    metadata = _entity_payload(result.entities)
+    output_name = _build_output_name(filename)
+    return {
+        "filename": filename,
+        "output_name": output_name,
+        "anonymized_text": result.anonymized_text,
+        "entity_count": len(metadata),
+        "preview": result.anonymized_text[:2000],
+        "entities": metadata[:30],
+        "metadata": metadata,
+    }
+
+
 def _process_uploaded_files(uploaded_files, pipeline: AnonymizationPipeline, emit_metadata: bool) -> tuple[bytes, list[dict]]:
     zip_buffer = BytesIO()
     summaries: list[dict] = []
 
     with zipfile.ZipFile(zip_buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for uploaded_file in uploaded_files:
-            suffix = Path(uploaded_file.name).suffix or ".txt"
-            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
-                temp_file.write(uploaded_file.getbuffer())
-                temp_path = Path(temp_file.name)
-
-            try:
-                text = read_input_text(temp_path)
-                result = pipeline.anonymize_text(text)
-            finally:
-                temp_path.unlink(missing_ok=True)
-
-            output_name = Path(uploaded_file.name).stem + ".anon.txt"
-            archive.writestr(output_name, result.anonymized_text)
-
-            metadata = _entity_payload(result.entities)
+            summary = _anonymize_uploaded_content(
+                uploaded_file.name,
+                uploaded_file.getbuffer(),
+                pipeline,
+            )
+            archive.writestr(summary["output_name"], summary["anonymized_text"])
             if emit_metadata:
                 archive.writestr(
-                    output_name + ".json",
-                    json.dumps(metadata, ensure_ascii=False, indent=2),
+                    summary["output_name"] + ".json",
+                    json.dumps(summary["metadata"], ensure_ascii=False, indent=2),
                 )
+            summaries.append(summary)
 
-            summaries.append(
-                {
-                    "filename": uploaded_file.name,
-                    "output_name": output_name,
-                    "entity_count": len(metadata),
-                    "preview": result.anonymized_text[:2000],
-                    "entities": metadata[:30],
-                }
-            )
+    zip_buffer.seek(0)
+    return zip_buffer.getvalue(), summaries
+
+
+def _process_uploaded_zip(uploaded_zip, pipeline: AnonymizationPipeline, emit_metadata: bool) -> tuple[bytes, list[dict]]:
+    zip_buffer = BytesIO()
+    summaries: list[dict] = []
+
+    with zipfile.ZipFile(BytesIO(uploaded_zip.getvalue())) as source_archive:
+        with zipfile.ZipFile(zip_buffer, "w", compression=zipfile.ZIP_DEFLATED) as output_archive:
+            for member_name in source_archive.namelist():
+                if member_name.endswith("/"):
+                    continue
+                if Path(member_name).suffix.lower() not in {".docx", ".txt"}:
+                    continue
+
+                summary = _anonymize_uploaded_content(
+                    member_name,
+                    source_archive.read(member_name),
+                    pipeline,
+                )
+                output_archive.writestr(summary["output_name"], summary["anonymized_text"])
+                if emit_metadata:
+                    output_archive.writestr(
+                        summary["output_name"] + ".json",
+                        json.dumps(summary["metadata"], ensure_ascii=False, indent=2),
+                    )
+                summaries.append(summary)
 
     zip_buffer.seek(0)
     return zip_buffer.getvalue(), summaries
@@ -135,7 +180,7 @@ def render_app() -> None:
         **How to use**
 
         1. Select the report type.
-        2. Upload one or more `.docx` or `.txt` files.
+        2. Upload one or more `.docx` / `.txt` files, or upload a `.zip` file containing a folder of reports.
         3. Click **Run anonymization**.
         4. Download the generated `.zip` archive.
         """
@@ -149,11 +194,18 @@ def render_app() -> None:
         type=["docx", "txt"],
         accept_multiple_files=True,
     )
+    uploaded_zip = st.file_uploader(
+        "Or upload a folder as .zip",
+        type=["zip"],
+        accept_multiple_files=False,
+    )
 
     if use_model and not model_dir.strip():
         st.info("If free-text model detection is needed, please provide the local model directory.")
 
-    if st.button("Run anonymization", type="primary", disabled=not uploaded_files):
+    has_input = bool(uploaded_files) or uploaded_zip is not None
+
+    if st.button("Run anonymization", type="primary", disabled=not has_input):
         config = _build_config(
             processing_mode=PROCESSING_MODE_OPTIONS[processing_mode_label],
             mask_token=mask_token,
@@ -167,7 +219,10 @@ def render_app() -> None:
         try:
             with st.spinner("Running anonymization..."):
                 pipeline = AnonymizationPipeline(config)
-                archive_bytes, summaries = _process_uploaded_files(uploaded_files, pipeline, emit_metadata)
+                if uploaded_zip is not None:
+                    archive_bytes, summaries = _process_uploaded_zip(uploaded_zip, pipeline, emit_metadata)
+                else:
+                    archive_bytes, summaries = _process_uploaded_files(uploaded_files, pipeline, emit_metadata)
         except Exception as exc:  # pragma: no cover
             st.error(f"Anonymization failed: {exc}")
         else:

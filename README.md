@@ -63,6 +63,7 @@ greek-med-anonymizer-ui
 The web app supports:
 
 - upload of one or more `.docx` / `.txt` files
+- upload of a `.zip` archive containing a folder of `.docx` / `.txt` reports
 - processing-mode selection
 - local model-path entry
 - optional JSON metadata export
@@ -87,8 +88,7 @@ greek-med-anonymizer-ui
 2. In the web interface:
 
 - choose the report type
-- provide the local model directory
-- upload one or more `.docx` / `.txt` reports
+- upload one or more `.docx` / `.txt` reports, or a `.zip` archive containing a folder of reports
 - run anonymization
 - download the resulting `.zip` archive
 
