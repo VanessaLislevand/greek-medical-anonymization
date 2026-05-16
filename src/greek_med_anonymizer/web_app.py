@@ -129,7 +129,8 @@ def _process_uploaded_zip(uploaded_zip, pipeline: AnonymizationPipeline, emit_me
     zip_buffer = BytesIO()
     summaries: list[dict] = []
 
-    with zipfile.ZipFile(BytesIO(uploaded_zip.getvalue())) as source_archive:
+    zip_bytes = bytes(uploaded_zip.getbuffer())
+    with zipfile.ZipFile(BytesIO(zip_bytes)) as source_archive:
         with zipfile.ZipFile(zip_buffer, "w", compression=zipfile.ZIP_DEFLATED) as output_archive:
             for member_name in source_archive.namelist():
                 if member_name.endswith("/"):
@@ -223,6 +224,11 @@ def render_app() -> None:
                     archive_bytes, summaries = _process_uploaded_zip(uploaded_zip, pipeline, emit_metadata)
                 else:
                     archive_bytes, summaries = _process_uploaded_files(uploaded_files, pipeline, emit_metadata)
+        except zipfile.BadZipFile:  # pragma: no cover
+            st.error(
+                "The uploaded file is not a valid .zip archive. Please create the archive with your operating system's "
+                "Compress option and upload the resulting .zip file."
+            )
         except Exception as exc:  # pragma: no cover
             st.error(f"Anonymization failed: {exc}")
         else:
