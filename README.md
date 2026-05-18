@@ -20,7 +20,6 @@ The notebook will:
 - download the repository
 - install the required packages
 - mount Google Drive
-- open a clickable link to the shared model folder
 - connect the app to the model files stored in Google Drive
 - launch the anonymization app
 
@@ -50,4 +49,4 @@ The downloaded `.zip` file contains:
 - Input reports can be `.docx` or `.txt`.
 - Folder upload should be provided as a real `.zip` archive.
 - The model files should be stored in Google Drive.
-- The notebook includes a cell with the shared model-folder link and then asks for the Google Drive path of that folder.
+- The notebook first tries the default model path in Google Drive and asks for another path only if needed.
