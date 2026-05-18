@@ -13,7 +13,7 @@ Open the launcher notebook here:
 1. Open the notebook in Colab.
 2. Run the cells from top to bottom.
 3. Wait for the app to start.
-4. Open the link shown by Colab.
+4. Open the public link shown in the last cell.
 
 The notebook will:
 
