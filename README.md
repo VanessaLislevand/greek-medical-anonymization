@@ -1,53 +1,27 @@
 # Greek Medical Report Anonymization
 
-This tool anonymizes Greek medical reports through a simple local web interface.
+This tool anonymizes Greek medical reports through a simple web app.
 
-It supports:
+## Open In Colab
 
-- one report at a time
-- multiple reports uploaded together
-- a `.zip` archive containing a folder of reports
+Open the launcher notebook here:
 
-## Download The Tool
+[Open in Colab](https://colab.research.google.com/github/VanessaLislevand/greek-medical-anonymization/blob/main/Launch_App.ipynb)
 
-1. Open the repository page in your browser.
-2. Click `Code`.
-3. Click `Download ZIP`.
-4. Extract the downloaded ZIP file.
-5. Open the extracted folder.
+## How To Start
 
-## First-Time Setup
+1. Open the notebook in Colab.
+2. Run the cells from top to bottom.
+3. Wait for the app to start.
+4. Open the link shown by Colab.
 
-This step is needed only once.
+The notebook will:
 
-Open `Terminal` and go to the extracted folder.
-
-Then run:
-
-```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-pip install -e '.[ml,ui]'
-```
-
-The model files should be placed in:
-
-```text
-models/xlmr_phi_final
-```
-
-## Start The App
-
-After the first-time setup:
-
-- on Mac, double-click `Start_Anonymizer.command`
-- on Windows, double-click `Start_Anonymizer.bat`
-
-If the browser does not open automatically, open:
-
-```text
-http://localhost:8501
-```
+- download the repository
+- install the required packages
+- mount Google Drive
+- connect the app to the model files stored in Google Drive
+- launch the anonymization app
 
 ## How To Use
 
@@ -73,5 +47,6 @@ The downloaded `.zip` file contains:
 ## Notes
 
 - Input reports can be `.docx` or `.txt`.
-- For folder upload, first create a real `.zip` archive of the folder.
-- The tool runs locally on the computer where it is launched.
+- Folder upload should be provided as a real `.zip` archive.
+- The model files should be stored in Google Drive.
+- The notebook will ask for the Google Drive path of the exported model folder.
