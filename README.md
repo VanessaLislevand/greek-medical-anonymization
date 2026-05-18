@@ -31,20 +31,27 @@ The model files should be placed in:
 models/xlmr_phi_final
 ```
 
+## Manual Start
+
+After the first-time setup, the easiest way to open the tool is:
+
+- Mac: double-click `Start_Anonymizer.command`
+- Windows: double-click `Start_Anonymizer.bat`
+
+If a browser window does not open automatically, open the local address shown in Terminal, usually:
+
+```text
+http://localhost:8501
+```
+
 ## Start The App
 
-Each time you want to use the tool, run:
+You can also start it manually:
 
 ```bash
 cd <REPOSITORY_FOLDER>
 source .venv/bin/activate
 greek-med-anonymizer-ui
-```
-
-Then open the local browser link shown in Terminal, usually:
-
-```text
-http://localhost:8501
 ```
 
 ## How To Use
