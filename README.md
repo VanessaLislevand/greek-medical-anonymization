@@ -1,34 +1,16 @@
 # Greek Medical Report Anonymization
 
-This repository contains a hybrid pipeline for anonymizing Greek medical reports. The approach combines rule-based processing for structured template fields with transformer-based PHI detection for free-text content.
+This tool anonymizes Greek medical reports through a simple local web interface.
 
-## Overview
+It supports:
 
-The pipeline supports:
+- single `.docx` or `.txt` reports
+- multiple reports uploaded together
+- a `.zip` archive containing a folder of reports
 
-- document ingestion from `.docx` and `.txt`
-- template-aware anonymization for structured sections
-- regex-based detection of phone numbers and patient IDs
-- XLM-R-based detection of PHI spans in free text
-- configurable processing modes for mixed-format and free-text-only reports
+## Before First Use
 
-## Repository Structure
-
-```text
-src/greek_med_anonymizer/
-  cli.py
-  pipeline.py
-  rules.py
-  template_rules.py
-  free_text_rules.py
-  templates.py
-  xlm_inference.py
-  config.py
-  io_utils.py
-  docx_io.py
-```
-
-## Installation
+Open Terminal inside the project folder and run:
 
 ```bash
 python3.12 -m venv .venv
@@ -36,86 +18,51 @@ source .venv/bin/activate
 pip install -e '.[ml,ui]'
 ```
 
-## Inference
-
-```bash
-greek-med-anonymizer anonymize \
-  --input /path/to/report_or_directory \
-  --output /path/to/output \
-  --config /path/to/config.json
-```
-
-The input may be either:
-
-- a single report file
-- a directory of reports for batch processing
-
-## Local Web App
-
-A local web interface is available for non-technical users.
-
-Launch it with:
-
-```bash
-greek-med-anonymizer-ui
-```
-
-The web app supports:
-
-- upload of one or more `.docx` / `.txt` files
-- upload of a `.zip` archive containing a folder of `.docx` / `.txt` reports
-- processing-mode selection
-- local model-path entry
-- optional JSON metadata export
-- download of anonymized outputs as a `.zip` archive
-
-By default, the interface expects the exported model under:
+The model files should be placed in:
 
 ```text
 models/xlmr_phi_final
 ```
 
-## Quick End-to-End Test
+## Start The App
 
-After installing the package and exporting the model, a simple end-to-end test can be performed as follows:
-
-1. Launch the local web app:
+Each time you want to use the tool, run:
 
 ```bash
+cd "/Users/vanessalislevand/Documents/New project"
+source .venv/bin/activate
 greek-med-anonymizer-ui
 ```
 
-2. In the web interface:
+Then open the local browser link shown in Terminal, usually:
 
-- choose the report type
-- upload one or more `.docx` / `.txt` reports, or a `.zip` archive containing a folder of reports
-- run anonymization
-- download the resulting `.zip` archive
+```text
+http://localhost:8501
+```
 
-## Configuration
+## How To Use
 
-Example configuration files are provided in:
+1. Select the report type.
+2. Upload one report, multiple reports, or a `.zip` file containing a folder of reports.
+3. If needed, change the mask token under `Advanced options`.
+4. Click `Run anonymization`.
+5. Download the generated `.zip` file.
 
-- `examples/config.example.json`
-- `examples/config.local-example.json`
-- `examples/config.mixed.example.json`
-- `examples/config.free_text_only.example.json`
+## Report Types
 
-Supported `processing_mode` values:
-
-- `auto`
-- `mixed`
-- `free_text_only`
-- `template_only`
+- `Report with template and free text`: use for reports that contain both structured fields and free text
+- `Free-text-only report`: use for narrative reports without a fixed template
+- `Template-only report`: use for reports that are mostly structured template fields
 
 ## Output
 
-The pipeline produces:
+The downloaded `.zip` file contains:
 
-- an anonymized text file
-- optional span-level metadata in JSON format
+- anonymized text output for each report
+- a `.json` metadata file for each report
 
 ## Notes
 
-- Medical reports, model weights, and generated outputs are intended to remain outside the repository.
-- The default repository location for the exported model is `models/xlmr_phi_final`.
+- Input reports can be `.docx` or `.txt`.
+- For folder upload, first create a real `.zip` archive of the folder.
+- The tool runs locally on the computer where it is launched.
