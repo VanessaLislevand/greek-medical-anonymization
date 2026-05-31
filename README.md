@@ -13,17 +13,17 @@ Open the notebook here:
 1. Open the notebook in Colab.
 2. Run the cells from top to bottom.
 3. Upload one report, multiple reports, or a `.zip` file containing a folder of reports.
-4. Review the preview shown inside Colab.
+4. Review the full anonymized report shown inside Colab.
 5. Download the generated `.zip` file.
 
 The notebook will:
 
 - download the repository
 - install the required packages
-- mount Google Drive
-- connect the pipeline to the model files stored in Google Drive
+- download the model from a shareable link
+- connect the pipeline to the downloaded model files
 - anonymize the uploaded reports
-- show a preview of the anonymized output inside the notebook
+- show the full anonymized output inside the notebook
 - download the output `.zip`
 
 ## Notebook Settings
@@ -32,7 +32,6 @@ Inside the notebook you can change:
 
 - `PROCESSING_MODE`
 - `MASK_TOKEN`
-- `DEFAULT_MODEL_DIR`
 
 ## Report Types
 
@@ -51,5 +50,4 @@ The downloaded `.zip` file contains:
 
 - Input reports can be `.docx` or `.txt`.
 - Folder upload should be provided as a real `.zip` archive.
-- The model files should be stored in Google Drive.
-- The notebook first tries the default model path in Google Drive and asks for another path only if needed.
+- The notebook downloads the model from a shareable link defined in the model-loading cell.
