@@ -7,6 +7,7 @@ import shutil
 import sys
 import tempfile
 from typing import Iterable
+from urllib.parse import parse_qs, urlparse
 import zipfile
 
 from greek_med_anonymizer.config import AppConfig, ModelConfig, RuleConfig
@@ -18,6 +19,24 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MODEL_DIR = PROJECT_ROOT / "models" / "xlmr_phi_final"
 MODEL_SHARE_LINK = "https://drive.google.com/file/d/1RIHFqp5Xke7t5JtMuXJBhoR_gqEVUoO_/view?usp=share_link"
 SUPPORTED_EXTENSIONS = {".docx", ".txt"}
+
+
+def _build_gdrive_download_url(share_link: str) -> str:
+    parsed = urlparse(share_link)
+    parts = [part for part in parsed.path.split("/") if part]
+
+    if "file" in parts and "d" in parts:
+        try:
+            file_id = parts[parts.index("d") + 1]
+            return f"https://drive.google.com/uc?id={file_id}"
+        except IndexError as exc:
+            raise ValueError("Could not parse Google Drive file ID from share link.") from exc
+
+    query_id = parse_qs(parsed.query).get("id")
+    if query_id:
+        return f"https://drive.google.com/uc?id={query_id[0]}"
+
+    raise ValueError("Unsupported Google Drive share link format.")
 
 
 def _is_valid_model_dir(path: Path) -> bool:
@@ -59,7 +78,8 @@ def _ensure_model_dir() -> Path:
         shutil.rmtree(extract_root)
     extract_root.mkdir(parents=True, exist_ok=True)
 
-    gdown.download(MODEL_SHARE_LINK, str(archive_path), quiet=False, fuzzy=True)
+    download_url = _build_gdrive_download_url(MODEL_SHARE_LINK)
+    gdown.download(download_url, str(archive_path), quiet=False)
 
     with zipfile.ZipFile(archive_path, "r") as archive:
         archive.extractall(extract_root)
