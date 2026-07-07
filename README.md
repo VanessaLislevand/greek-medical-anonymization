@@ -1,46 +1,51 @@
 # Greek Medical Report Anonymization
 
-This tool anonymizes Greek medical reports through a simple Google Colab notebook.
+This tool anonymizes Greek medical reports. It can be used either through Google Colab or through a simple local web app.
 
-## Open In Colab
-
-Open the notebook here:
+## Option 1: Google Colab
 
 [Open in Colab](https://colab.research.google.com/github/delta-icu/de-identification/blob/main/Run_Anonymization_Colab.ipynb)
 
-## How To Start
+Steps:
 
 1. Open the notebook in Colab.
 2. Run the cells from top to bottom.
 3. Upload one report, multiple reports, or a `.zip` file containing a folder of reports.
-4. Review the full anonymized report shown inside Colab.
-5. Click the download button to save the generated `.zip` file.
+4. Review the full anonymized output inside the notebook.
+5. Download the generated `.zip` file.
 
-The notebook will:
+## Option 2: Local Web App
 
-- download the repository
-- install the required packages
-- download the model from a shareable link
-- connect the pipeline to the downloaded model files
-- anonymize the uploaded reports
-- show the full anonymized output inside the notebook
+From the project folder, install the package and launch the app:
+
+```bash
+pip install -e ".[ml,ui]"
+greek-med-anonymizer-ui
+```
+
+The web app will:
+
+- download the model automatically if it is not already available
+- accept `.docx`, `.txt`, or `.zip` uploads
+- anonymize one or multiple reports
+- show the full anonymized output for each file
 - provide a download button for the output `.zip`
 
-## Notebook Settings
+## Settings
 
-Inside the notebook you can change:
+Both interfaces expose only two main settings:
 
-- `REPORT_TYPE`
-- `MASK_TOKEN`
+- `Report type`
+- `Mask token`
 
-## Report Types
+Available report types:
 
-- `Report with template and free text`: for reports that contain both structured fields and free text
-- `Free-text-only report`: for narrative reports without a fixed template
+- `Report with template and free text`
+- `Free-text-only report`
 
 ## Output
 
-The downloaded `.zip` file contains:
+The output `.zip` file contains:
 
 - one anonymized text file for each report
 - one `.json` metadata file for each report
@@ -49,4 +54,4 @@ The downloaded `.zip` file contains:
 
 - Input reports can be `.docx` or `.txt`.
 - Folder upload should be provided as a real `.zip` archive.
-- The notebook downloads the model from a shareable link defined in the model-loading cell.
+- The model is downloaded automatically from a shareable link when needed.

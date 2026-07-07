@@ -15,9 +15,14 @@ ml = [
   "transformers>=4.40.0",
   "torch>=2.2.0",
 ]
+ui = [
+  "streamlit>=1.36.0",
+  "gdown>=5.2.0",
+]
 
 [project.scripts]
 greek-med-anonymizer = "greek_med_anonymizer.cli:main"
+greek-med-anonymizer-ui = "greek_med_anonymizer.web_app:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
