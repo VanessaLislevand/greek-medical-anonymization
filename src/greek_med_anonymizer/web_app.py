@@ -10,11 +10,6 @@ from typing import Iterable
 from urllib.parse import parse_qs, urlparse
 import zipfile
 
-from greek_med_anonymizer.config import AppConfig, ModelConfig, RuleConfig
-from greek_med_anonymizer.io_utils import read_input_text
-from greek_med_anonymizer.pipeline import AnonymizationPipeline
-
-
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MODEL_DIR = PROJECT_ROOT / "models" / "xlmr_phi_final"
 MODEL_SHARE_LINK = "https://drive.google.com/file/d/1RIHFqp5Xke7t5JtMuXJBhoR_gqEVUoO_/view?usp=share_link"
@@ -96,6 +91,9 @@ def _ensure_model_dir() -> Path:
 
 
 def _build_pipeline(processing_mode: str, mask_token: str) -> AnonymizationPipeline:
+    from greek_med_anonymizer.config import AppConfig, ModelConfig, RuleConfig
+    from greek_med_anonymizer.pipeline import AnonymizationPipeline
+
     config = AppConfig(
         input_glob="*.docx",
         output_suffix=".anon.txt",
@@ -169,10 +167,15 @@ def _build_output_zip(results: list[dict[str, object]]) -> bytes:
 
 def render_app() -> None:
     import streamlit as st
+    from greek_med_anonymizer.io_utils import read_input_text
 
     st.set_page_config(page_title="Greek Medical Report Anonymizer", layout="wide")
     st.title("Greek Medical Report Anonymizer")
     st.write("Upload one or more reports, or upload a `.zip` file containing a folder of reports.")
+
+    @st.cache_resource(show_spinner=False)
+    def get_cached_pipeline(processing_mode: str, mask_token: str):
+        return _build_pipeline(processing_mode=processing_mode, mask_token=mask_token)
 
     with st.sidebar:
         report_type_label = st.selectbox(
@@ -203,7 +206,7 @@ def render_app() -> None:
 
         try:
             with st.spinner("Preparing model and pipeline..."):
-                pipeline = _build_pipeline(processing_mode=processing_mode, mask_token=mask_token)
+                pipeline = get_cached_pipeline(processing_mode=processing_mode, mask_token=mask_token)
 
             with tempfile.TemporaryDirectory() as temp_dir_name:
                 temp_dir = Path(temp_dir_name)
