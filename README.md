@@ -40,6 +40,7 @@ Typical times:
 
 The launcher will:
 
+- use an active conda environment if one is already open
 - create `.venv` if needed
 - install the required packages the first time
 - open the web app
@@ -62,6 +63,7 @@ Double-click `Launch_Web_App_Windows.bat` again.
 
 The launcher will:
 
+- use an active conda environment if one is already open
 - create `.venv` if needed
 - install the required packages the first time
 - open the web app
