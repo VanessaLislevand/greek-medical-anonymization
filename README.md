@@ -31,17 +31,11 @@ You need:
 
 ```powershell
 py --version
-py -3.10 -m venv .venv
+py -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -e ".[ml,ui]"
-greek-med-anonymizer-ui
-```
-
-If `py -3.10 -m venv .venv` does not work, try:
-
-```powershell
-py -m venv .venv
+python -m streamlit run src\greek_med_anonymizer\web_app.py
 ```
 
 If PowerShell blocks activation, run:
@@ -117,6 +111,10 @@ If `pip` is not found, use:
 python -m pip install -e ".[ml,ui]"
 ```
 
-If `greek-med-anonymizer-ui` is not found, the virtual environment is usually not activated or the installation did not finish successfully.
+If `greek-med-anonymizer-ui` is not found on Windows, use:
+
+```powershell
+python -m streamlit run src\greek_med_anonymizer\web_app.py
+```
 
 If folder upload fails, make sure the folder was uploaded as a real `.zip` archive.
