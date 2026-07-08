@@ -22,7 +22,16 @@ You need:
 - Python 3.10 or newer
 - internet access the first time the app runs
 
+Typical times:
+
+- first setup: about 5-15 minutes
+- opening the app after setup: usually a few seconds
+- first anonymization run: usually slower, because the model may need to be downloaded and loaded
+- next app launches: faster than the first time
+
 ## Windows Setup
+
+### First Time Only
 
 1. Download this repository from GitHub as a `.zip` file and extract it.
 2. Open the extracted folder.
@@ -42,7 +51,18 @@ The app should open at:
 
 `http://localhost:8501`
 
+### Next Times
+
+Open PowerShell inside the same project folder and run:
+
+```powershell
+.venv\Scripts\Activate.ps1
+python -m streamlit run src\greek_med_anonymizer\web_app.py
+```
+
 ## Mac Setup
+
+### First Time Only
 
 1. Download this repository from GitHub as a `.zip` file and extract it.
 2. Open Terminal inside the project folder.
@@ -60,6 +80,15 @@ The app should open at:
 
 `http://localhost:8501`
 
+### Next Times
+
+Open Terminal inside the same project folder and run:
+
+```bash
+source .venv/bin/activate
+greek-med-anonymizer-ui
+```
+
 ## How To Use The Web App
 
 1. Choose the report type.
@@ -69,6 +98,11 @@ The app should open at:
 5. Click `Run anonymization`.
 6. Review the anonymized output shown on screen.
 7. Download the generated `.zip` file.
+
+Note:
+
+- you do not need to reinstall the package every time
+- you usually install only once per computer and per project folder
 
 ## Report Types
 
