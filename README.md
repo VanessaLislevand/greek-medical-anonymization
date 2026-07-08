@@ -5,7 +5,7 @@ This repository provides two ways to anonymize Greek medical reports:
 1. a local web app
 2. a Google Colab notebook
 
-For most users, the easiest option is the local web app.
+The main way to use this repository is the local web app.
 
 ## Web App
 
@@ -36,13 +36,6 @@ py -m venv .venv
 python -m pip install --upgrade pip
 python -m pip install -e ".[ml,ui]"
 python -m streamlit run src\greek_med_anonymizer\web_app.py
-```
-
-If PowerShell blocks activation, run:
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.venv\Scripts\Activate.ps1
 ```
 
 The app should open at:
@@ -89,9 +82,9 @@ The downloaded `.zip` file contains:
 - one anonymized text file for each report
 - one `.json` metadata file for each report
 
-## Colab Option
+## Notebook
 
-If you prefer not to install anything locally, use the notebook:
+The notebook is available as an alternative option:
 
 [Open in Colab](https://colab.research.google.com/github/VanessaLislevand/greek-medical-anonymization/blob/main/Run_Anonymization_Colab.ipynb)
 
@@ -102,19 +95,3 @@ Inside Colab:
 3. upload your files
 4. review the anonymized output
 5. download the generated `.zip`
-
-## Troubleshooting
-
-If `pip` is not found, use:
-
-```bash
-python -m pip install -e ".[ml,ui]"
-```
-
-If `greek-med-anonymizer-ui` is not found on Windows, use:
-
-```powershell
-python -m streamlit run src\greek_med_anonymizer\web_app.py
-```
-
-If folder upload fails, make sure the folder was uploaded as a real `.zip` archive.
